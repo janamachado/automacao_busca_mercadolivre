@@ -53,34 +53,16 @@ let obj = {};
         // Obter a classificação
         const rate = await page.$eval('.ui-pdp-review__rating', span => span.innerText)
         const quantityRate = await page.$eval('.ui-pdp-review__amount', span => span.innerText.replace(/[()]/g, ''))
-        const formatedRate = `Classificação: ${rate} de ${quantityRate}`
+        const formatedRate = `${rate} de ${quantityRate}`
 
         // Identifica se determinado elemento existe => retorna null se não existir
-        let seller
-        const isSeller = await page.$('.ui-pdp-seller__label-sold')
-
-        // Se existir, obter valor
-        if(isSeller){
-            seller = await page.$$eval('.ui-pdp-seller__link-trigger-button > span', el => {
-    
-                const arr = []
-                let founded = false
-    
-                el.forEach(span => {
-                    const text = span.innerText
-                    if(!founded && text === 'Vendido por'){
-                        arr.push("Vendido por: ")
-                        founded = true
-                    }else if(text !== 'Vendido por'){
-                        arr.push(text)
-                    }
-                });
-                return arr.join(', ').replace(" , ", "")
-                // return arr
-
-            });
-        }else{
-            seller = ""
+        let seller;
+        const isSeller = await page.$('.ui-pdp-seller__link-trigger-button');
+        
+        if (isSeller) {
+            seller = await page.$eval('.ui-pdp-seller__link-trigger-button > span:last-child', el => `Vendido por: ${el.innerText}`);
+        } else {
+            seller = "";
         }
 
         obj.titulo = title
@@ -88,7 +70,8 @@ let obj = {};
         obj.classificacao = formatedRate
         obj.link = link
         obj.vendedor = seller
-        
+
+        // console.log("obj:", obj.vendedor)
         console.log(obj)
         
     }
